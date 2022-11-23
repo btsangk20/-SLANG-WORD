@@ -6,6 +6,23 @@ public class main {
   public static ArrayList<String> history = new ArrayList<String>();
   public static Scanner sc = new Scanner(System.in);
 
+  public static void searchBySlang() {
+
+    System.out.print("Press a Slang word: ");
+    String key = sc.nextLine();
+    history.add(key);
+    key = key.toUpperCase();
+    if (!map.containsKey(key)) {
+      System.out.println("Not Found !");
+    } else {
+      List<String> l = map.get(key);
+      System.out.println("Definition:");
+      for (String s : l) {
+        System.out.println("- " + s);
+      }
+    }
+  }
+
   public static void ReadFile(String fileName) {
     try {
       File f = new File(fileName);
