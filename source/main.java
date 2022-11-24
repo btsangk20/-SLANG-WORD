@@ -1,5 +1,7 @@
+import java.awt.Color;
 import java.io.*;
 import java.util.*;
+import javax.swing.*;
 
 public class main {
   public static HashMap<String, List<String>> map = new HashMap<String, List<String>>();
@@ -76,10 +78,54 @@ public class main {
     }
   }
 
+  public static void RenderMenuu() {
+    JFrame frame = new JFrame("Slang Dictionary");
+    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    frame.setSize(1200, 1000);
+
+    JLabel label = new JLabel("Slang Dictionary");
+    label.setBounds(500, 10, 100, 100);
+
+    JPanel search = new JPanel();
+    search.setLayout(null);
+    search.setBounds(10, 10, 1000, 200);
+
+    JLabel keyword = new JLabel("Keyword");
+    keyword.setBounds(10, 70, 100, 100);
+
+    JTextField keywordText = new JTextField();
+    keywordText.setBounds(100, 100, 200, 30);
+
+    String[] searchBy = { "Slang", "Definition" };
+    JComboBox searchByBox = new JComboBox(searchBy);
+    searchByBox.setBounds(320, 100, 200, 30);
+
+    JButton searchButton = new JButton("Search");
+    searchButton.setBounds(540, 100, 200, 30);
+
+    JButton history = new JButton("History");
+    history.setBounds(760, 100, 200, 30);
+
+    search.add(keyword);
+    search.add(keywordText);
+    search.add(searchByBox);
+    search.add(searchButton);
+    search.add(history);
+    search.add(label);
+
+    
+    frame.add(search);
+
+    frame.setLayout(null);
+    frame.setVisible(true);
+  }
+
   public static void main(String[] args) {
-    ReadFile("");
-    if (map.isEmpty()) {
-      ReadFile("");
-    }
+    // ReadFile("");
+    // if (map.isEmpty()) {
+    // ReadFile("");
+    // }
+
+    RenderMenuu();
   }
 }
