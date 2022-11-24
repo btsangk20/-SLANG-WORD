@@ -144,6 +144,79 @@ public class main {
     manage.add(definitionText);
     manage.setLayout(null);
 
+    String[][] data = {
+
+    };
+    // Column Names
+    String[] columnNames = { "ID", "Slang", "Definition" };
+    JTable jTable = new JTable(data, columnNames);
+    JScrollPane sp = new JScrollPane(jTable);
+    sp.setBounds(550, 200, 600, 700);
+
+    // button random
+    JButton randomButton = new JButton("Random");
+    randomButton.setBounds(20, 400, 100, 30);
+    // label
+    JLabel randomSlang = new JLabel("Slang");
+    randomSlang.setBounds(150, 350, 130, 130);
+
+    JLabel randomDefinition = new JLabel("Definition");
+    randomDefinition.setBounds(200, 350, 130, 130);
+
+    // ađd frame with black border 300 x 300
+    JPanel miniGame = new JPanel();
+    miniGame.setBounds(10, 450, 500, 500);
+    miniGame.setLayout(null);
+    miniGame.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+
+    JLabel miniGameLabel = new JLabel("Mini Game");
+    miniGameLabel.setBounds(150, 0, 100, 100);
+
+    // button start
+    JButton startButton = new JButton("Start");
+    startButton.setBounds(300, 30, 100, 30);
+
+    JComboBox miniGameByBox = new JComboBox(searchBy);
+    miniGameByBox.setBounds(20, 100, 200, 30);
+
+    // label question
+    JLabel question = new JLabel("Question");
+    question.setBounds(20, 130, 100, 100);
+
+    // add button with solution a, b, c, d
+    JButton solutionA = new JButton("A");
+    solutionA.setBounds(20, 200, 200, 60);
+    JButton solutionB = new JButton("B");
+    solutionB.setBounds(260, 200, 200, 60);
+    JButton solutionC = new JButton("C");
+    solutionC.setBounds(20, 300, 200, 60);
+    JButton solutionD = new JButton("D");
+    solutionD.setBounds(260, 300, 200, 60);
+
+    // button stop game and next question
+    JButton stopButton = new JButton("Stop Game");
+    stopButton.setBounds(70, 400, 150, 30);
+    JButton nextButton = new JButton("Next Question");
+    nextButton.setBounds(270, 400, 150, 30);
+    
+    miniGame.add(miniGameLabel);
+    miniGame.add(miniGameByBox);
+    miniGame.add(startButton);
+    miniGame.add(solutionA);
+    miniGame.add(solutionB);
+    miniGame.add(solutionC);
+    miniGame.add(solutionD);
+    miniGame.add(question);
+    miniGame.add(stopButton);
+    miniGame.add(nextButton);
+    frame.add(miniGame);
+
+    frame.add(randomButton);
+    frame.add(randomSlang);
+    frame.add(randomDefinition);
+    
+    frame.add(sp);
+
     frame.add(search);
     frame.add(manage);
 
