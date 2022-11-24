@@ -113,8 +113,39 @@ public class main {
     search.add(history);
     search.add(label);
 
-    
+    JPanel manage = new JPanel();
+    manage.setBounds(10, 120, 500, 300);
+
+    JLabel slang = new JLabel("Slang");
+    slang.setBounds(10, 70, 100, 100);
+    JTextField slangText = new JTextField();
+    slangText.setBounds(100, 100, 400, 30);
+
+    JLabel definition = new JLabel("Definition");
+    definition.setBounds(10, 120, 100, 100);
+
+    JTextField definitionText = new JTextField();
+    definitionText.setBounds(100, 150, 400, 30);
+
+    // button add, delete, edit
+    JButton addButton = new JButton("Add");
+    addButton.setBounds(120, 200, 100, 30);
+    JButton deleteButton = new JButton("Delete");
+    deleteButton.setBounds(240, 200, 100, 30);
+    JButton editButton = new JButton("Edit");
+    editButton.setBounds(360, 200, 100, 30);
+
+    manage.add(addButton);
+    manage.add(deleteButton);
+    manage.add(editButton);
+    manage.add(slang);
+    manage.add(slangText);
+    manage.add(definition);
+    manage.add(definitionText);
+    manage.setLayout(null);
+
     frame.add(search);
+    frame.add(manage);
 
     frame.setLayout(null);
     frame.setVisible(true);
