@@ -1,5 +1,6 @@
 import java.awt.Color;
 import java.io.*;
+import java.sql.Struct;
 import java.util.*;
 import javax.swing.*;
 
@@ -78,7 +79,7 @@ public class main {
     }
   }
 
-  public static void RenderMenuu() {
+  public static void RenderMenuu(HashMap<String, List<String>> data) {
     JFrame frame = new JFrame("Slang Dictionary");
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     frame.setSize(1200, 1000);
@@ -144,12 +145,26 @@ public class main {
     manage.add(definitionText);
     manage.setLayout(null);
 
-    String[][] data = {
-
+    String[][] dataRender = {
+      
     };
-    // Column Names
+
+
+    for (String key : map.keySet()) {
+      int j = 0;
+      List<String> value = map.get(key);
+      int i = 0;
+      System.out.print(key + ": ");
+      for (i = 0; i < value.size() - 1; i++) {
+        System.out.print(value.get(i));
+      }
+      System.out.println(value.get(i));
+    }
+
+    // insert data
+
     String[] columnNames = { "ID", "Slang", "Definition" };
-    JTable jTable = new JTable(data, columnNames);
+    JTable jTable = new JTable(dataRender, columnNames);
     JScrollPane sp = new JScrollPane(jTable);
     sp.setBounds(550, 200, 600, 700);
 
@@ -198,7 +213,7 @@ public class main {
     stopButton.setBounds(70, 400, 150, 30);
     JButton nextButton = new JButton("Next Question");
     nextButton.setBounds(270, 400, 150, 30);
-    
+
     miniGame.add(miniGameLabel);
     miniGame.add(miniGameByBox);
     miniGame.add(startButton);
@@ -214,7 +229,7 @@ public class main {
     frame.add(randomButton);
     frame.add(randomSlang);
     frame.add(randomDefinition);
-    
+
     frame.add(sp);
 
     frame.add(search);
@@ -225,11 +240,11 @@ public class main {
   }
 
   public static void main(String[] args) {
-    // ReadFile("");
-    // if (map.isEmpty()) {
-    // ReadFile("");
-    // }
+    ReadFile("mockSlang.txt");
+    if (map.isEmpty()) {
+      ReadFile("slang.txt");
+    }
 
-    RenderMenuu();
+    RenderMenuu(map);
   }
 }
