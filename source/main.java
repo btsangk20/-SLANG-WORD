@@ -2,12 +2,15 @@ import java.awt.Color;
 import java.io.*;
 import java.util.*;
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 
 public class main {
   public static HashMap<String, List<String>> map = new HashMap<String, List<String>>();
   public static ArrayList<String> history = new ArrayList<String>();
   public static Scanner sc = new Scanner(System.in);
   public static String[] columnNames = { "ID", "Slang", "Definition" };
+  public static JTable jTable = new JTable();
+  public static JScrollPane sp = new JScrollPane();
 
   public static void searchBySlang() {
 
@@ -113,6 +116,45 @@ public class main {
     }
   }
 
+  public static void WriteHistory(String file_name) {
+    try {
+      File f = new File(file_name);
+      FileWriter fw = new FileWriter(f);
+      BufferedWriter bw = new BufferedWriter(fw);
+      for (String i : history) {
+        fw.write(i + "\n");
+      }
+
+      fw.close();
+      bw.close();
+    }
+
+    catch (Exception ex) {
+      System.out.println("Error: " + ex);
+    }
+  }
+
+  public static ArrayList<String> loadHistory(String file_name) {
+    ArrayList<String> his = new ArrayList<String>();
+    try {
+      File f = new File(file_name);
+      FileReader fr = new FileReader(f);
+
+      BufferedReader br = new BufferedReader(fr);
+      String line;
+      while ((line = br.readLine()) != null) {
+        his.add(line);
+      }
+
+      fr.close();
+      br.close();
+    } catch (Exception ex) {
+      System.out.println("Error: " + ex);
+    }
+
+    return his;
+  }
+
   public static String[][] getDataToTable() {
     String[][] dataArr = new String[map.size()][3];
 
@@ -170,14 +212,15 @@ public class main {
     search.add(label);
 
     searchButton.addActionListener(new java.awt.event.ActionListener() {
+
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         String key = keywordText.getText();
+        main.history.add(key);
         key = key.toUpperCase();
         if (searchByBox.getSelectedItem().equals("Slang")) {
           if (!map.containsKey(key)) {
             JOptionPane.showMessageDialog(null, "Not Found !");
           } else {
-            // show dialog
             String[][] dataArr = new String[1][3];
             dataArr[0][0] = "1";
             dataArr[0][1] = key;
@@ -190,7 +233,9 @@ public class main {
             dataArr[0][2] = tmpStr;
             JTable table = new JTable(dataArr, columnNames);
             JScrollPane scrollPane = new JScrollPane(table);
-            JOptionPane.showMessageDialog(null, scrollPane);
+            table.setFillsViewportHeight(true);
+            // show it with title is "Search Slang Result"
+            JOptionPane.showMessageDialog(null, scrollPane, "Search Slang Result", JOptionPane.PLAIN_MESSAGE);
           }
         } else {
           ArrayList<String> slang_means = new ArrayList<String>();
@@ -221,9 +266,25 @@ public class main {
             }
             JTable table = new JTable(dataArr, columnNames);
             JScrollPane scrollPane = new JScrollPane(table);
-            JOptionPane.showMessageDialog(null, scrollPane);
+            JOptionPane.showMessageDialog(null, scrollPane, "Search Definition Result", JOptionPane.PLAIN_MESSAGE);
           }
         }
+      }
+    });
+
+    history.addActionListener(new java.awt.event.ActionListener() {
+
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        String[] dataArr = new String[main.history.size()];
+
+        for (int i = 0; i < main.history.size(); i++) {
+          dataArr[i] = main.history.get(i);
+        }
+
+        JList list = new JList(dataArr);
+        JScrollPane scrollPane = new JScrollPane(list);
+        JOptionPane.showMessageDialog(null, scrollPane, "History", JOptionPane.PLAIN_MESSAGE);
+
       }
     });
 
@@ -259,9 +320,9 @@ public class main {
 
     String[][] dataRender = getDataToTable();
 
-    JTable jTable = new JTable(dataRender, columnNames);
-    JScrollPane sp = new JScrollPane(jTable);
-    sp.setBounds(550, 200, 600, 700);
+    main.jTable = new JTable(dataRender, columnNames);
+    main.sp = new JScrollPane(jTable);
+    main.sp.setBounds(550, 200, 600, 700);
 
     JButton randomButton = new JButton("Random");
     randomButton.setBounds(20, 400, 100, 30);
@@ -322,6 +383,8 @@ public class main {
     frame.add(search);
     frame.add(manage);
 
+    main.history = main.loadHistory("history.txt");
+
     frame.setLayout(null);
     frame.setVisible(true);
   }
@@ -331,7 +394,6 @@ public class main {
     if (map.isEmpty()) {
       ReadFile("slang.txt");
     }
-
     RenderMenuu();
   }
 }
