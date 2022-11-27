@@ -2,7 +2,7 @@ import java.awt.Color;
 import java.io.*;
 import java.util.*;
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
+import java.awt.event.ActionListener;
 
 public class main {
   public static HashMap<String, List<String>> map = new HashMap<String, List<String>>();
@@ -186,7 +186,7 @@ public class main {
 
     JPanel search = new JPanel();
     search.setLayout(null);
-    search.setBounds(10, 10, 1000, 200);
+    search.setBounds(10, 10, 1200, 200);
 
     JLabel keyword = new JLabel("Keyword");
     keyword.setBounds(10, 70, 100, 100);
@@ -199,16 +199,20 @@ public class main {
     searchByBox.setBounds(320, 100, 200, 30);
 
     JButton searchButton = new JButton("Search");
-    searchButton.setBounds(540, 100, 200, 30);
+    searchButton.setBounds(540, 100, 150, 30);
 
-    JButton history = new JButton("History");
-    history.setBounds(760, 100, 200, 30);
+    JButton historyButton = new JButton("History");
+    historyButton.setBounds(710, 100, 150, 30);
+
+    JButton resetButton = new JButton("Reset");
+    resetButton.setBounds(880, 100, 150, 30);
 
     search.add(keyword);
     search.add(keywordText);
     search.add(searchByBox);
     search.add(searchButton);
-    search.add(history);
+    search.add(historyButton);
+    search.add(resetButton);
     search.add(label);
 
     searchButton.addActionListener(new java.awt.event.ActionListener() {
@@ -234,7 +238,6 @@ public class main {
             JTable table = new JTable(dataArr, columnNames);
             JScrollPane scrollPane = new JScrollPane(table);
             table.setFillsViewportHeight(true);
-            // show it with title is "Search Slang Result"
             JOptionPane.showMessageDialog(null, scrollPane, "Search Slang Result", JOptionPane.PLAIN_MESSAGE);
           }
         } else {
@@ -272,7 +275,7 @@ public class main {
       }
     });
 
-    history.addActionListener(new java.awt.event.ActionListener() {
+    historyButton.addActionListener(new java.awt.event.ActionListener() {
 
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         String[] dataArr = new String[main.history.size()];
@@ -286,6 +289,11 @@ public class main {
         JOptionPane.showMessageDialog(null, scrollPane, "History", JOptionPane.PLAIN_MESSAGE);
 
       }
+    });
+
+    resetButton.addActionListener(e -> {
+      map = new HashMap<String, List<String>>();
+      ReadFile("slang.txt");
     });
 
     JPanel manage = new JPanel();
@@ -376,7 +384,7 @@ public class main {
 
     main.jTable = new JTable(dataRender, columnNames);
     main.sp = new JScrollPane(jTable);
-    main.sp.setBounds(550, 200, 600, 700);
+    main.sp.setBounds(550, 180, 600, 770);
 
     JButton randomButton = new JButton("Random");
     randomButton.setBounds(20, 400, 100, 30);
@@ -384,6 +392,7 @@ public class main {
     randomSlang.setBounds(150, 350, 400, 130);
     JLabel randomDefinition = new JLabel("Definition");
     randomDefinition.setBounds(150, 400, 400, 130);
+    Random rand = new Random();
 
     randomButton.addActionListener(new java.awt.event.ActionListener() {
 
@@ -423,15 +432,16 @@ public class main {
     miniGameByBox.setBounds(20, 100, 200, 30);
 
     JLabel question = new JLabel("Question");
-    question.setBounds(20, 130, 100, 100);
+    question.setBounds(20, 130, 450, 100);
 
     JButton solutionA = new JButton("A");
-    solutionA.setBounds(20, 200, 200, 60);
     JButton solutionB = new JButton("B");
-    solutionB.setBounds(260, 200, 200, 60);
     JButton solutionC = new JButton("C");
-    solutionC.setBounds(20, 300, 200, 60);
     JButton solutionD = new JButton("D");
+
+    solutionA.setBounds(20, 200, 200, 60);
+    solutionB.setBounds(260, 200, 200, 60);
+    solutionC.setBounds(20, 300, 200, 60);
     solutionD.setBounds(260, 300, 200, 60);
 
     JButton stopButton = new JButton("Stop Game");
@@ -466,7 +476,7 @@ public class main {
         solutionD.setEnabled(false);
         stopButton.setEnabled(false);
         nextButton.setEnabled(false);
-        question.setText("Question");
+        question.setText("Question?");
         solutionA.setText("A");
         solutionB.setText("B");
         solutionC.setText("C");
@@ -474,376 +484,191 @@ public class main {
       }
     });
 
-    startButton.addActionListener(
-        new java.awt.event.ActionListener() {
+    ActionListener actionListener = new ActionListener() {
 
-          public void actionPerformed(java.awt.event.ActionEvent evt) {
-            solutionA.setEnabled(true);
-            solutionB.setEnabled(true);
-            solutionC.setEnabled(true);
-            solutionD.setEnabled(true);
-            stopButton.setEnabled(true);
-            nextButton.setEnabled(true);
-            startButton.setEnabled(true);
-
-            String searchBy = (String) miniGameByBox.getSelectedItem();
-
-            Random rand = new Random();
-            int n = rand.nextInt(map.size());
-            if (searchBy.equals("Slang")) {
-              int i = 0;
-              for (String s : map.keySet()) {
-                if (i == n) {
-                  question.setText(s);
-                  List<String> tmp = map.get(s);
-                  String tmpStr = "";
-                  for (int j = 0; j < tmp.size() - 1; j++) {
-                    tmpStr += tmp.get(j) + ", ";
-                  }
-                  tmpStr += tmp.get(tmp.size() - 1);
-                  int n1 = rand.nextInt(4);
-                  if (n1 == 0) {
-                    solutionA.setText(tmpStr);
-                    solutionB.setText(map.get((String) map.keySet().toArray()[rand.nextInt(map.size())]).get(0));
-                    solutionC.setText(map.get((String) map.keySet().toArray()[rand.nextInt(map.size())]).get(0));
-                    solutionD.setText(map.get((String) map.keySet().toArray()[rand.nextInt(map.size())]).get(0));
-                    solutionA.addActionListener(
-                        new java.awt.event.ActionListener() {
-
-                          public void actionPerformed(
-                              java.awt.event.ActionEvent evt) {
-                            JOptionPane.showMessageDialog(
-                                null, "Correct");
-                          }
-                        });
-                    solutionB.addActionListener(
-                        new java.awt.event.ActionListener() {
-
-                          public void actionPerformed(
-                              java.awt.event.ActionEvent evt) {
-                            JOptionPane.showMessageDialog(
-                                null, "Incorrect");
-                          }
-                        });
-                    solutionC.addActionListener(
-                        new java.awt.event.ActionListener() {
-
-                          public void actionPerformed(
-                              java.awt.event.ActionEvent evt) {
-                            JOptionPane.showMessageDialog(
-                                null, "Incorrect");
-                          }
-                        });
-                    solutionD.addActionListener(
-                        new java.awt.event.ActionListener() {
-
-                          public void actionPerformed(
-                              java.awt.event.ActionEvent evt) {
-                            JOptionPane.showMessageDialog(
-                                null, "Incorrect");
-                          }
-                        });
-                  } else if (n1 == 1) {
-                    solutionB.setText(tmpStr);
-                    solutionA.setText(map.get((String) map.keySet().toArray()[rand.nextInt(map.size())]).get(0));
-                    solutionC.setText(map.get((String) map.keySet().toArray()[rand.nextInt(map.size())]).get(0));
-                    solutionD.setText(map.get((String) map.keySet().toArray()[rand.nextInt(map.size())]).get(0));
-                    solutionB.addActionListener(
-                        new java.awt.event.ActionListener() {
-
-                          public void actionPerformed(
-                              java.awt.event.ActionEvent evt) {
-                            JOptionPane.showMessageDialog(
-                                null, "Correct");
-                          }
-                        });
-                    solutionA.addActionListener(
-                        new java.awt.event.ActionListener() {
-
-                          public void actionPerformed(
-                              java.awt.event.ActionEvent evt) {
-                            JOptionPane.showMessageDialog(
-                                null, "Incorrect");
-                          }
-                        });
-                    solutionC.addActionListener(
-                        new java.awt.event.ActionListener() {
-
-                          public void actionPerformed(
-                              java.awt.event.ActionEvent evt) {
-                            JOptionPane.showMessageDialog(
-                                null, "Incorrect");
-                          }
-                        });
-                    solutionD.addActionListener(
-                        new java.awt.event.ActionListener() {
-
-                          public void actionPerformed(
-                              java.awt.event.ActionEvent evt) {
-                            JOptionPane.showMessageDialog(
-                                null, "Incorrect");
-                          }
-                        });
-                  } else if (n1 == 2) {
-                    solutionC.setText(tmpStr);
-                    solutionB.setText(map.get((String) map.keySet().toArray()[rand.nextInt(map.size())]).get(0));
-                    solutionA.setText(map.get((String) map.keySet().toArray()[rand.nextInt(map.size())]).get(0));
-                    solutionD.setText(map.get((String) map.keySet().toArray()[rand.nextInt(map.size())]).get(0));
-                    solutionC.addActionListener(
-                        new java.awt.event.ActionListener() {
-
-                          public void actionPerformed(java.awt.event.ActionEvent evt) {
-                            JOptionPane.showMessageDialog(
-                                null, "Correct");
-                          }
-                        });
-                    solutionA.addActionListener(
-                        new java.awt.event.ActionListener() {
-
-                          public void actionPerformed(java.awt.event.ActionEvent evt) {
-                            JOptionPane.showMessageDialog(
-                                null, "Incorrect");
-                          }
-                        });
-                    solutionB.addActionListener(
-                        new java.awt.event.ActionListener() {
-
-                          public void actionPerformed(java.awt.event.ActionEvent evt) {
-                            JOptionPane.showMessageDialog(
-                                null, "Incorrect");
-                          }
-                        });
-                    solutionD.addActionListener(
-                        new java.awt.event.ActionListener() {
-
-                          public void actionPerformed(java.awt.event.ActionEvent evt) {
-                            JOptionPane.showMessageDialog(
-                                null, "Incorrect");
-                          }
-                        });
-                  } else if (n1 == 3) {
-                    solutionD.setText(tmpStr);
-                    solutionB.setText(map.get((String) map.keySet().toArray()[rand.nextInt(map.size())]).get(0));
-                    solutionC.setText(map.get((String) map.keySet().toArray()[rand.nextInt(map.size())]).get(0));
-                    solutionA.setText(map.get((String) map.keySet().toArray()[rand.nextInt(map.size())]).get(0));
-                    solutionD.addActionListener(
-                        new java.awt.event.ActionListener() {
-
-                          public void actionPerformed(java.awt.event.ActionEvent evt) {
-                            JOptionPane.showMessageDialog(
-                                null, "Correct");
-                          }
-                        });
-                    solutionA.addActionListener(
-                        new java.awt.event.ActionListener() {
-
-                          public void actionPerformed(java.awt.event.ActionEvent evt) {
-                            JOptionPane.showMessageDialog(
-                                null, "Incorrect");
-                          }
-                        });
-                    solutionB.addActionListener(
-                        new java.awt.event.ActionListener() {
-
-                          public void actionPerformed(java.awt.event.ActionEvent evt) {
-                            JOptionPane.showMessageDialog(
-                                null, "Incorrect");
-                          }
-                        });
-                    solutionC.addActionListener(
-                        new java.awt.event.ActionListener() {
-
-                          public void actionPerformed(java.awt.event.ActionEvent evt) {
-                            JOptionPane.showMessageDialog(
-                                null, "Incorrect");
-                          }
-                        });
-                  }
-                  break;
-                }
-                i++;
+      public void randomAnswer(Boolean isSlang) {
+        int n = rand.nextInt(map.size());
+        int i = 0;
+        if (isSlang) {
+          for (String s : map.keySet()) {
+            if (i == n) {
+              question.setText("Question: " + s);
+              List<String> tmp = map.get(s);
+              String tmpStr = "";
+              for (int j = 0; j < tmp.size() - 1; j++) {
+                tmpStr += tmp.get(j) + ", ";
               }
-            } else {
-              int i = 0;
-              for (String key : map.keySet()) {
-                if (i == n) {
-                  // get the value of the key assign to question
-                  question.setText(map.get(key).get(0));
-                  int n1 = rand.nextInt(4);
-                  // get key assign to solution
-                  String tmpStr = key;
-                  if (n1 == 0) {
-                    solutionA.setText(tmpStr);
-                    solutionB.setText(map.keySet().toArray()[rand.nextInt(map.size())].toString());
-                    solutionC.setText(map.keySet().toArray()[rand.nextInt(map.size())].toString());
-                    solutionD.setText(map.keySet().toArray()[rand.nextInt(map.size())].toString());
-                    solutionA.addActionListener(
-                        new java.awt.event.ActionListener() {
-
-                          public void actionPerformed(
-                              java.awt.event.ActionEvent evt) {
-                            JOptionPane.showMessageDialog(
-                                null, "Correct");
-                          }
-                        });
-                    solutionB.addActionListener(
-                        new java.awt.event.ActionListener() {
-
-                          public void actionPerformed(
-                              java.awt.event.ActionEvent evt) {
-                            JOptionPane.showMessageDialog(
-                                null, "Incorrect");
-                          }
-                        });
-                    solutionC.addActionListener(
-                        new java.awt.event.ActionListener() {
-
-                          public void actionPerformed(
-                              java.awt.event.ActionEvent evt) {
-                            JOptionPane.showMessageDialog(
-                                null, "Incorrect");
-                          }
-                        });
-                    solutionD.addActionListener(
-                        new java.awt.event.ActionListener() {
-
-                          public void actionPerformed(
-                              java.awt.event.ActionEvent evt) {
-                            JOptionPane.showMessageDialog(
-                                null, "Incorrect");
-                          }
-                        });
-                  } else if (n1 == 1) {
-                    solutionB.setText(tmpStr);
-                    solutionA.setText(map.keySet().toArray()[rand.nextInt(map.size())].toString());
-                    solutionC.setText(map.keySet().toArray()[rand.nextInt(map.size())].toString());
-                    solutionD.setText(map.keySet().toArray()[rand.nextInt(map.size())].toString());
-                    solutionB.addActionListener(
-                        new java.awt.event.ActionListener() {
-
-                          public void actionPerformed(
-                              java.awt.event.ActionEvent evt) {
-                            JOptionPane.showMessageDialog(
-                                null, "Correct");
-                          }
-                        });
-                    solutionA.addActionListener(
-                        new java.awt.event.ActionListener() {
-
-                          public void actionPerformed(
-                              java.awt.event.ActionEvent evt) {
-                            JOptionPane.showMessageDialog(
-                                null, "Incorrect");
-                          }
-                        });
-                    solutionC.addActionListener(
-                        new java.awt.event.ActionListener() {
-
-                          public void actionPerformed(
-                              java.awt.event.ActionEvent evt) {
-                            JOptionPane.showMessageDialog(
-                                null, "Incorrect");
-                          }
-                        });
-                    solutionD.addActionListener(
-                        new java.awt.event.ActionListener() {
-
-                          public void actionPerformed(
-                              java.awt.event.ActionEvent evt) {
-                            JOptionPane.showMessageDialog(
-                                null, "Incorrect");
-                          }
-                        });
-                  } else if (n1 == 2) {
-                    solutionC.setText(tmpStr);
-                    solutionB.setText(map.keySet().toArray()[rand.nextInt(map.size())].toString());
-                    solutionA.setText(map.keySet().toArray()[rand.nextInt(map.size())].toString());
-                    solutionD.setText(map.keySet().toArray()[rand.nextInt(map.size())].toString());
-                    solutionC.addActionListener(
-                        new java.awt.event.ActionListener() {
-
-                          public void actionPerformed(
-                              java.awt.event.ActionEvent evt) {
-                            JOptionPane.showMessageDialog(
-                                null, "Correct");
-                          }
-                        });
-                    solutionA.addActionListener(
-                        new java.awt.event.ActionListener() {
-
-                          public void actionPerformed(
-                              java.awt.event.ActionEvent evt) {
-                            JOptionPane.showMessageDialog(
-                                null, "Incorrect");
-                          }
-                        });
-                    solutionB.addActionListener(
-                        new java.awt.event.ActionListener() {
-
-                          public void actionPerformed(
-                              java.awt.event.ActionEvent evt) {
-                            JOptionPane.showMessageDialog(
-                                null, "Incorrect");
-                          }
-                        });
-                    solutionD.addActionListener(
-                        new java.awt.event.ActionListener() {
-
-                          public void actionPerformed(
-                              java.awt.event.ActionEvent evt) {
-                            JOptionPane.showMessageDialog(
-                                null, "Incorrect");
-                          }
-                        });
-                  } else if (n1 == 3) {
-                    solutionD.setText(tmpStr);
-                    solutionB.setText(map.keySet().toArray()[rand.nextInt(map.size())].toString());
-                    solutionC.setText(map.keySet().toArray()[rand.nextInt(map.size())].toString());
-                    solutionA.setText(map.keySet().toArray()[rand.nextInt(map.size())].toString());
-                    solutionD.addActionListener(
-                        new java.awt.event.ActionListener() {
-
-                          public void actionPerformed(
-                              java.awt.event.ActionEvent evt) {
-                            JOptionPane.showMessageDialog(
-                                null, "Correct");
-                          }
-                        });
-                    solutionA.addActionListener(
-                        new java.awt.event.ActionListener() {
-
-                          public void actionPerformed(
-                              java.awt.event.ActionEvent evt) {
-                            JOptionPane.showMessageDialog(
-                                null, "Incorrect");
-                          }
-                        });
-                    solutionB.addActionListener(
-                        new java.awt.event.ActionListener() {
-
-                          public void actionPerformed(
-                              java.awt.event.ActionEvent evt) {
-                            JOptionPane.showMessageDialog(
-                                null, "Incorrect");
-                          }
-                        });
-                    solutionC.addActionListener(
-                        new java.awt.event.ActionListener() {
-
-                          public void actionPerformed(
-                              java.awt.event.ActionEvent evt) {
-                            JOptionPane.showMessageDialog(
-                                null, "Incorrect");
-                          }
-                        });
-                  }
-                  break;
-                }
-                i++;
+              tmpStr += tmp.get(tmp.size() - 1);
+              int n1 = rand.nextInt(4);
+              if (n1 == 0) {
+                handleEvent("A", tmpStr, true);
+              } else if (n1 == 1) {
+                handleEvent("B", tmpStr, true);
+              } else if (n1 == 2) {
+                handleEvent("C", tmpStr, true);
+              } else if (n1 == 3) {
+                handleEvent("D", tmpStr, true);
               }
+              break;
             }
+            i++;
           }
-        });
+        } else if (!isSlang) {
+          for (String key : map.keySet()) {
+            if (i == n) {
+              question.setText("Question: " + map.get(key).get(0));
+              int n1 = rand.nextInt(4);
+              String tmpStr = key;
+              if (n1 == 0) {
+                handleEvent("A", tmpStr, false);
+              } else if (n1 == 1) {
+                handleEvent("B", tmpStr, false);
+              } else if (n1 == 2) {
+                handleEvent("C", tmpStr, false);
+              } else if (n1 == 3) {
+                handleEvent("D", tmpStr, false);
+              }
+              break;
+            }
+            i++;
+          }
+        }
+      }
+
+      public void handleEvent(String result, String answer, Boolean isSlang) {
+
+        if (solutionA.getActionListeners().length > 0) {
+          solutionA.removeActionListener(solutionA.getActionListeners()[0]);
+        }
+
+        if (solutionB.getActionListeners().length > 0) {
+          solutionB.removeActionListener(solutionB.getActionListeners()[0]);
+        }
+
+        if (solutionC.getActionListeners().length > 0) {
+          solutionC.removeActionListener(solutionC.getActionListeners()[0]);
+        }
+
+        if (solutionD.getActionListeners().length > 0) {
+          solutionD.removeActionListener(solutionD.getActionListeners()[0]);
+        }
+
+        if (result == "A") {
+          solutionA.setText(answer);
+          solutionA.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+              JOptionPane.showMessageDialog(null, "Correct !");
+              randomAnswer(isSlang);
+            }
+          });
+        } else {
+          if (isSlang) {
+            solutionA.setText(map.get((String) map.keySet().toArray()[rand.nextInt(map.size())]).get(0));
+          } else {
+            solutionA.setText(map.keySet().toArray()[rand.nextInt(map.size())].toString());
+          }
+          solutionA.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+              JOptionPane.showMessageDialog(null, "Wrong !" + " The correct answer is " + answer.toUpperCase());
+              randomAnswer(isSlang);
+            }
+          });
+        }
+
+        if (result == "B") {
+          solutionB.setText(answer);
+          solutionB.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+              JOptionPane.showMessageDialog(null, "Correct !");
+              randomAnswer(isSlang);
+            }
+          });
+        } else {
+          if (isSlang) {
+            solutionB.setText(map.get((String) map.keySet().toArray()[rand.nextInt(map.size())]).get(0));
+          } else {
+            solutionB.setText(map.keySet().toArray()[rand.nextInt(map.size())].toString());
+          }
+          solutionB.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+              JOptionPane.showMessageDialog(null, "Wrong !" + " The correct answer is " + answer.toUpperCase());
+              randomAnswer(isSlang);
+            }
+          });
+        }
+
+        if (result == "C") {
+          solutionC.setText(answer);
+          solutionC.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+              JOptionPane.showMessageDialog(null, "Correct !");
+              randomAnswer(isSlang);
+            }
+          });
+        } else {
+          if (isSlang) {
+            solutionC.setText(map.get((String) map.keySet().toArray()[rand.nextInt(map.size())]).get(0));
+          } else {
+            solutionC.setText(map.keySet().toArray()[rand.nextInt(map.size())].toString());
+          }
+          solutionC.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+              JOptionPane.showMessageDialog(null, "Wrong !" + " The correct answer is " + answer.toUpperCase());
+              randomAnswer(isSlang);
+            }
+          });
+        }
+
+        if (result == "D") {
+          solutionD.setText(answer);
+          solutionD.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+              JOptionPane.showMessageDialog(null, "Correct !");
+              randomAnswer(isSlang);
+            }
+          });
+        } else {
+          if (isSlang) {
+            solutionD.setText(map.get((String) map.keySet().toArray()[rand.nextInt(map.size())]).get(0));
+          } else {
+            solutionD.setText(map.keySet().toArray()[rand.nextInt(map.size())].toString());
+          }
+          solutionD.addActionListener(new java.awt.event.ActionListener() {
+
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+              JOptionPane.showMessageDialog(null, "Wrong !" + " The correct answer is " + answer.toUpperCase());
+              randomAnswer(isSlang);
+            }
+          });
+        }
+      }
+
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        stopButton.setEnabled(true);
+        nextButton.setEnabled(true);
+        solutionA.setEnabled(true);
+        solutionB.setEnabled(true);
+        solutionC.setEnabled(true);
+        solutionD.setEnabled(true);
+
+        String searchBy = (String) miniGameByBox.getSelectedItem();
+        if (searchBy.equals("Slang")) {
+          randomAnswer(true);
+        } else if (searchBy.equals("Definition")) {
+          randomAnswer(false);
+        }
+      }
+    };
+
+    startButton.addActionListener(actionListener);
+    nextButton.addActionListener(actionListener);
 
     frame.add(miniGame);
     frame.add(randomButton);
