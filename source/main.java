@@ -2,6 +2,8 @@ import java.awt.Color;
 import java.io.*;
 import java.util.*;
 import javax.swing.*;
+import javax.swing.table.TableModel;
+import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionListener;
 
 public class main {
@@ -221,6 +223,9 @@ public class main {
         String key = keywordText.getText();
         main.history.add(key);
         key = key.toUpperCase();
+        String[][] arrData = getDataToTable();
+        TableModel loadModel = new DefaultTableModel(arrData, columnNames);
+        jTable.setModel(loadModel);
         if (searchByBox.getSelectedItem().equals("Slang")) {
           if (!map.containsKey(key)) {
             JOptionPane.showMessageDialog(null, "Not Found !");
@@ -235,10 +240,8 @@ public class main {
             }
             tmpStr += tmp.get(tmp.size() - 1);
             dataArr[0][2] = tmpStr;
-            JTable table = new JTable(dataArr, columnNames);
-            JScrollPane scrollPane = new JScrollPane(table);
-            table.setFillsViewportHeight(true);
-            JOptionPane.showMessageDialog(null, scrollPane, "Search Slang Result", JOptionPane.PLAIN_MESSAGE);
+            TableModel model = new DefaultTableModel(dataArr, columnNames);
+            jTable.setModel(model);
           }
         } else {
           ArrayList<String> slang_means = new ArrayList<String>();
@@ -267,9 +270,8 @@ public class main {
               dataArr[i][2] = tmpStr;
               i++;
             }
-            JTable table = new JTable(dataArr, columnNames);
-            JScrollPane scrollPane = new JScrollPane(table);
-            JOptionPane.showMessageDialog(null, scrollPane, "Search Definition Result", JOptionPane.PLAIN_MESSAGE);
+            TableModel model = new DefaultTableModel(dataArr, columnNames);
+            jTable.setModel(model);
           }
         }
       }
@@ -294,6 +296,9 @@ public class main {
     resetButton.addActionListener(e -> {
       map = new HashMap<String, List<String>>();
       ReadFile("slang.txt");
+      String[][] dataArr = getDataToTable();
+      TableModel model = new DefaultTableModel(dataArr, columnNames);
+      jTable.setModel(model);
     });
 
     JPanel manage = new JPanel();
@@ -332,6 +337,9 @@ public class main {
             tmpList.add(s);
           }
           map.put(slang, tmpList);
+          String[][] arrData = getDataToTable();
+          TableModel model = new DefaultTableModel(arrData, columnNames);
+          jTable.setModel(model);
           JOptionPane.showMessageDialog(null, "Add successfully !");
         }
       }
@@ -352,6 +360,9 @@ public class main {
             tmpList.add(s);
           }
           map.put(slang, tmpList);
+          String[][] arrData = getDataToTable();
+          TableModel model = new DefaultTableModel(arrData, columnNames);
+          jTable.setModel(model);
           JOptionPane.showMessageDialog(null, "Edit successfully !");
         }
       }
@@ -366,6 +377,9 @@ public class main {
           JOptionPane.showMessageDialog(null, "Slang does not exist !");
         } else {
           map.remove(slang);
+          String[][] arrData = getDataToTable();
+          TableModel model = new DefaultTableModel(arrData, columnNames);
+          jTable.setModel(model);
           JOptionPane.showMessageDialog(null, "Delete successfully !");
         }
       }
