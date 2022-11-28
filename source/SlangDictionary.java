@@ -7,21 +7,21 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionListener;
 
 public class SlangDictionary {
-  public static HashMap<String, List<String>> map = new HashMap<String, List<String>>();
-  public static ArrayList<String> history = new ArrayList<String>();
-  public static Scanner sc = new Scanner(System.in);
-  public static String[] columnNames = { "ID", "Slang", "Definition" };
-  public static JTable jTable = new JTable();
-  public static JScrollPane sp = new JScrollPane();
+  private static HashMap<String, List<String>> map = new HashMap<String, List<String>>();
+  private static ArrayList<String> history = new ArrayList<String>();
+  private static Scanner sc = new Scanner(System.in);
+  private static String[] columnNames = { "ID", "Slang", "Definition" };
+  private static JTable jTable = new JTable();
+  private static JScrollPane sp = new JScrollPane();
 
   public SlangDictionary() {
-    ReadFile("mockSlang.txt");
+    ReadFile("database.txt");
     if (map.isEmpty()) {
       ReadFile("slang.txt");
     }
   }
 
-  public static void ReadFile(String fileName) {
+  private static void ReadFile(String fileName) {
     try {
       File f = new File(fileName);
       FileReader fr = new FileReader(f);
@@ -53,7 +53,7 @@ public class SlangDictionary {
     }
   }
 
-  public static void WriteFile(String file_name) {
+  private static void WriteFile(String file_name) {
     try {
       File f = new File(file_name);
       FileWriter fw = new FileWriter(f);
@@ -74,7 +74,7 @@ public class SlangDictionary {
     }
   }
 
-  public static String[][] getDataToTable() {
+  private static String[][] getDataToTable() {
     String[][] dataArr = new String[map.size()][3];
 
     int i = 0;
@@ -140,12 +140,12 @@ public class SlangDictionary {
         String key = keywordText.getText();
         history.add(key);
         key = key.toUpperCase();
-        String[][] arrData = getDataToTable();
-        TableModel loadModel = new DefaultTableModel(arrData, columnNames);
-        jTable.setModel(loadModel);
         if (searchByBox.getSelectedItem().equals("Slang")) {
           if (!map.containsKey(key)) {
             JOptionPane.showMessageDialog(null, "Not Found !");
+            String[][] arrData = getDataToTable();
+            TableModel loadModel = new DefaultTableModel(arrData, columnNames);
+            jTable.setModel(loadModel);
           } else {
             String[][] dataArr = new String[1][3];
             dataArr[0][0] = "1";
@@ -245,20 +245,28 @@ public class SlangDictionary {
         String slang = slangText.getText();
         String definition = definitionText.getText();
         slang = slang.toUpperCase();
-        if (map.containsKey(slang)) {
-          JOptionPane.showMessageDialog(null, "Slang already exists !");
+        if (!map.containsKey(slang)) {
+          List<String> tmp = new ArrayList<String>();
+          tmp.add(definition);
+          map.put(slang, tmp);
         } else {
-          String[] tmp = definition.split(",");
-          List<String> tmpList = new ArrayList<String>();
-          for (String s : tmp) {
-            tmpList.add(s);
+          String[] options = { "Overview", "Duplicate" };
+          int x = JOptionPane.showOptionDialog(null, "Slang is already exist !", "Warning",
+              JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
+          if (x == 0) {
+            List<String> tmp = new ArrayList<String>();
+            tmp.add(definition);
+            map.put(slang, tmp);
+          } else {
+            List<String> tmp = map.get(slang);
+            tmp.add(definition);
+            map.put(slang, tmp);
           }
-          map.put(slang, tmpList);
-          String[][] arrData = getDataToTable();
-          TableModel model = new DefaultTableModel(arrData, columnNames);
-          jTable.setModel(model);
-          JOptionPane.showMessageDialog(null, "Add successfully !");
         }
+        String[][] arrData = getDataToTable();
+        TableModel model = new DefaultTableModel(arrData, columnNames);
+        jTable.setModel(model);
+        JOptionPane.showMessageDialog(null, "Add successfully !");
       }
     });
 
@@ -293,11 +301,17 @@ public class SlangDictionary {
         if (!map.containsKey(slang)) {
           JOptionPane.showMessageDialog(null, "Slang does not exist !");
         } else {
-          map.remove(slang);
-          String[][] arrData = getDataToTable();
-          TableModel model = new DefaultTableModel(arrData, columnNames);
-          jTable.setModel(model);
-          JOptionPane.showMessageDialog(null, "Delete successfully !");
+          int x = JOptionPane.showConfirmDialog(null, "Do you want to delete ?", "Warning",
+              JOptionPane.YES_NO_OPTION);
+          if (x == JOptionPane.YES_OPTION) {
+            map.remove(slang);
+            String[][] arrData = getDataToTable();
+            TableModel model = new DefaultTableModel(arrData, columnNames);
+            jTable.setModel(model);
+            JOptionPane.showMessageDialog(null, "Delete successfully !");
+          } else {
+            JOptionPane.showMessageDialog(null, "Delete failed !");
+          }
         }
       }
     });
@@ -614,5 +628,4 @@ public class SlangDictionary {
     frame.setLayout(null);
     frame.setVisible(true);
   }
-
 }
