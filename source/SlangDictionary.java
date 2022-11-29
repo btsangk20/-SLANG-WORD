@@ -4,50 +4,50 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.table.TableModel;
 import javax.swing.table.DefaultTableModel;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 
 public class SlangDictionary {
-  private static HashMap<String, List<String>> map = new HashMap<String, List<String>>();
+  private static HashMap<String, List<String>> DataSource = new HashMap<String, List<String>>();
   private static ArrayList<String> history = new ArrayList<String>();
-  private static Scanner sc = new Scanner(System.in);
   private static String[] columnNames = { "ID", "Slang", "Definition" };
-  private static JTable jTable = new JTable();
-  private static JScrollPane sp = new JScrollPane();
+  private static JTable Table = new JTable();
+  private static JScrollPane ScrollPane = new JScrollPane();
+  private static String[][] dataRender;
 
   public SlangDictionary() {
     ReadFile("database.txt");
-    if (map.isEmpty()) {
+    if (DataSource.isEmpty()) {
       ReadFile("slang.txt");
     }
   }
 
   private static void ReadFile(String fileName) {
     try {
-      File f = new File(fileName);
-      FileReader fr = new FileReader(f);
+      File file = new File(fileName);
+      FileReader fileReader = new FileReader(file);
 
-      BufferedReader br = new BufferedReader(fr);
+      BufferedReader bufferedReader = new BufferedReader(fileReader);
       String line;
-      while ((line = br.readLine()) != null) {
+      while ((line = bufferedReader.readLine()) != null) {
         if (line.contains("`")) {
-          List<String> tar = new ArrayList<String>();
+          List<String> slangWord = new ArrayList<String>();
 
-          String[] s = line.split("`");
-          if (s[1].contains("|")) {
-            String[] tmp = s[1].split("\\|");
-            for (int i = 0; i < tmp.length; i++) {
-              tmp[i] = tmp[i].trim();
+          String[] slangArray = line.split("`");
+          if (slangArray[1].contains("|")) {
+            String[] definition = slangArray[1].split("\\|");
+            for (int i = 0; i < definition.length; i++) {
+              definition[i] = definition[i].trim();
             }
-            tar = Arrays.asList(tmp);
+            slangWord = Arrays.asList(definition);
           } else {
-            tar.add(s[1]);
+            slangWord.add(slangArray[1]);
           }
-          map.put(s[0], tar);
+          DataSource.put(slangArray[0], slangWord);
         }
       }
 
-      fr.close();
-      br.close();
+      fileReader.close();
+      bufferedReader.close();
     } catch (Exception ex) {
       System.out.println("Error: " + ex);
     }
@@ -55,44 +55,49 @@ public class SlangDictionary {
 
   private static void WriteFile(String file_name) {
     try {
-      File f = new File(file_name);
-      FileWriter fw = new FileWriter(f);
-      for (String key : map.keySet()) {
-        fw.write(key + "`");
-        List<String> tmp = map.get(key);
+      File file = new File(file_name);
+      FileWriter fileWriter = new FileWriter(file);
+      for (String key : DataSource.keySet()) {
+        fileWriter.write(key + "`");
+        List<String> definitionList = DataSource.get(key);
         int i = 0;
-        for (i = 0; i < tmp.size() - 1; i++) {
-          fw.write(tmp.get(i) + "| ");
+        for (i = 0; i < definitionList.size() - 1; i++) {
+          fileWriter.write(definitionList.get(i) + "| ");
         }
 
-        fw.write(tmp.get(i) + "\n");
+        fileWriter.write(definitionList.get(i) + "\n");
       }
 
-      fw.close();
+      fileWriter.close();
     } catch (Exception ex) {
       System.out.println("Error: " + ex);
     }
   }
 
   private static String[][] getDataToTable() {
-    String[][] dataArr = new String[map.size()][3];
+    String[][] data = new String[DataSource.size()][3];
 
     int i = 0;
-    for (String key : map.keySet()) {
-      dataArr[i][0] = i + 1 + "";
+    for (String slang : DataSource.keySet()) {
+      data[i][0] = i + 1 + "";
       ;
-      dataArr[i][1] = key;
-      List<String> tmp = map.get(key);
-      String tmpStr = "";
-      for (int j = 0; j < tmp.size() - 1; j++) {
-        tmpStr += tmp.get(j) + ", ";
+      data[i][1] = slang;
+      List<String> definitionList = DataSource.get(slang);
+      String definitionsString = "";
+      for (int j = 0; j < definitionList.size() - 1; j++) {
+        definitionsString += definitionList.get(j) + ", ";
       }
-      tmpStr += tmp.get(tmp.size() - 1);
-      dataArr[i][2] = tmpStr;
+      definitionsString += definitionList.get(definitionList.size() - 1);
+      data[i][2] = definitionsString;
       i++;
     }
 
-    return dataArr;
+    return data;
+  }
+
+  private static void reRender(String[][] dataRender) {
+    TableModel loadModel = new DefaultTableModel(dataRender, columnNames);
+    Table.setModel(loadModel);
   }
 
   public static void RenderMenuu() {
@@ -134,69 +139,66 @@ public class SlangDictionary {
     search.add(resetButton);
     search.add(label);
 
-    searchButton.addActionListener(new java.awt.event.ActionListener() {
+    searchButton.addActionListener(new ActionListener() {
 
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
+      public void actionPerformed(ActionEvent event) {
         String key = keywordText.getText();
         history.add(key);
         key = key.toUpperCase();
         if (searchByBox.getSelectedItem().equals("Slang")) {
-          if (!map.containsKey(key)) {
+          if (!DataSource.containsKey(key)) {
             JOptionPane.showMessageDialog(null, "Not Found !");
-            String[][] arrData = getDataToTable();
-            TableModel loadModel = new DefaultTableModel(arrData, columnNames);
-            jTable.setModel(loadModel);
+            dataRender = getDataToTable();
+            reRender(dataRender);
           } else {
-            String[][] dataArr = new String[1][3];
-            dataArr[0][0] = "1";
-            dataArr[0][1] = key;
-            List<String> tmp = map.get(key);
-            String tmpStr = "";
-            for (int j = 0; j < tmp.size() - 1; j++) {
-              tmpStr += tmp.get(j) + ", ";
+            dataRender = new String[1][3];
+            dataRender[0][0] = "1";
+            dataRender[0][1] = key;
+            List<String> definitionList = DataSource.get(key);
+            String definitionsString = "";
+            for (int j = 0; j < definitionList.size() - 1; j++) {
+              definitionsString += definitionList.get(j) + ", ";
             }
-            tmpStr += tmp.get(tmp.size() - 1);
-            dataArr[0][2] = tmpStr;
-            TableModel model = new DefaultTableModel(dataArr, columnNames);
-            jTable.setModel(model);
+            definitionsString += definitionList.get(definitionList.size() - 1);
+            dataRender[0][2] = definitionsString;
+            reRender(dataRender);
           }
         } else {
-          ArrayList<String> slang_means = new ArrayList<String>();
+          ArrayList<String> slangWord = new ArrayList<String>();
           String word = keywordText.getText();
           word = word.toLowerCase();
-          for (String i : map.keySet()) {
-            for (String s : map.get(i)) {
-              if (s.toLowerCase().contains(word)) {
-                slang_means.add(i);
+          for (String slang : DataSource.keySet()) {
+            for (String definition : DataSource.get(slang)) {
+              if (definition.toLowerCase().contains(word)) {
+                slangWord.add(slang);
               }
             }
           }
 
-          if (!slang_means.isEmpty()) {
-            String[][] dataArr = new String[slang_means.size()][3];
+          if (!slangWord.isEmpty()) {
+            dataRender = new String[slangWord.size()][3];
             int i = 0;
-            for (String s : slang_means) {
-              dataArr[i][0] = i + 1 + "";
-              dataArr[i][1] = s;
-              List<String> tmp = map.get(s);
-              String tmpStr = "";
-              for (int j = 0; j < tmp.size() - 1; j++) {
-                tmpStr += tmp.get(j) + ", ";
+            for (String slang : slangWord) {
+              dataRender[i][0] = i + 1 + "";
+              dataRender[i][1] = slang;
+              List<String> definitionList = DataSource.get(slang);
+              String definitionsString = "";
+              for (int j = 0; j < definitionList.size() - 1; j++) {
+                definitionsString += definitionList.get(j) + ", ";
               }
-              tmpStr += tmp.get(tmp.size() - 1);
-              dataArr[i][2] = tmpStr;
+              definitionsString += definitionList.get(definitionList.size() - 1);
+              dataRender[i][2] = definitionsString;
               i++;
             }
-            TableModel model = new DefaultTableModel(dataArr, columnNames);
-            jTable.setModel(model);
+            reRender(dataRender);
           }
         }
       }
     });
 
-    historyButton.addActionListener(new java.awt.event.ActionListener() {
+    historyButton.addActionListener(new ActionListener() {
 
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
+      public void actionPerformed(ActionEvent event) {
         String[] dataArr = new String[history.size()];
 
         for (int i = 0; i < history.size(); i++) {
@@ -211,11 +213,10 @@ public class SlangDictionary {
     });
 
     resetButton.addActionListener(e -> {
-      map = new HashMap<String, List<String>>();
+      DataSource = new HashMap<String, List<String>>();
       ReadFile("slang.txt");
-      String[][] dataArr = getDataToTable();
-      TableModel model = new DefaultTableModel(dataArr, columnNames);
-      jTable.setModel(model);
+      dataRender = getDataToTable();
+      reRender(dataRender);
     });
 
     JPanel manage = new JPanel();
@@ -239,75 +240,72 @@ public class SlangDictionary {
     JButton editButton = new JButton("Edit");
     editButton.setBounds(360, 200, 100, 30);
 
-    addButton.addActionListener(new java.awt.event.ActionListener() {
+    addButton.addActionListener(new ActionListener() {
 
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        String slang = slangText.getText();
-        String definition = definitionText.getText();
-        slang = slang.toUpperCase();
-        if (!map.containsKey(slang)) {
-          List<String> tmp = new ArrayList<String>();
-          tmp.add(definition);
-          map.put(slang, tmp);
+      public void actionPerformed(ActionEvent event) {
+        String slangInput = slangText.getText();
+        String definitionInput = definitionText.getText();
+        slangInput = slangInput.toUpperCase();
+        if (!DataSource.containsKey(slangInput)) {
+          List<String> definitionList = new ArrayList<String>();
+          definitionList.add(definitionInput);
+          DataSource.put(slangInput, definitionList);
         } else {
           String[] options = { "Overview", "Duplicate" };
           int x = JOptionPane.showOptionDialog(null, "Slang is already exist !", "Warning",
               JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
           if (x == 0) {
-            List<String> tmp = new ArrayList<String>();
-            tmp.add(definition);
-            map.put(slang, tmp);
+            List<String> definitionList = new ArrayList<String>();
+            definitionList.add(definitionInput);
+            DataSource.put(slangInput, definitionList);
           } else {
-            List<String> tmp = map.get(slang);
-            tmp.add(definition);
-            map.put(slang, tmp);
+            List<String> definitionList = DataSource.get(slangInput);
+            definitionList.add(definitionInput);
+            DataSource.put(slangInput, definitionList);
           }
         }
-        String[][] arrData = getDataToTable();
-        TableModel model = new DefaultTableModel(arrData, columnNames);
-        jTable.setModel(model);
+        dataRender = getDataToTable();
+        reRender(dataRender);
         JOptionPane.showMessageDialog(null, "Add successfully !");
       }
     });
 
-    editButton.addActionListener(new java.awt.event.ActionListener() {
+    editButton.addActionListener(new ActionListener() {
 
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        String slang = slangText.getText();
-        String definition = definitionText.getText();
-        slang = slang.toUpperCase();
-        if (!map.containsKey(slang)) {
+      public void actionPerformed(ActionEvent event) {
+        String slangInput = slangText.getText();
+        String definitionInput = definitionText.getText();
+        slangInput = slangInput.toUpperCase();
+        if (!DataSource.containsKey(slangInput)) {
           JOptionPane.showMessageDialog(null, "Slang does not exist !");
         } else {
-          String[] tmp = definition.split(",");
-          List<String> tmpList = new ArrayList<String>();
-          for (String s : tmp) {
-            tmpList.add(s);
+          String[] definitions = definitionInput.split(",");
+          List<String> definitionList = new ArrayList<String>();
+          for (String definition : definitions) {
+            definitionList.add(definition);
           }
-          map.put(slang, tmpList);
-          String[][] arrData = getDataToTable();
-          TableModel model = new DefaultTableModel(arrData, columnNames);
-          jTable.setModel(model);
+          DataSource.put(slangInput, definitionList);
+          dataRender = getDataToTable();
+          reRender(dataRender);
           JOptionPane.showMessageDialog(null, "Edit successfully !");
         }
       }
     });
 
-    deleteButton.addActionListener(new java.awt.event.ActionListener() {
+    deleteButton.addActionListener(new ActionListener() {
 
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        String slang = slangText.getText();
-        slang = slang.toUpperCase();
-        if (!map.containsKey(slang)) {
+      public void actionPerformed(ActionEvent event) {
+        String slangInput = slangText.getText();
+        slangInput = slangInput.toUpperCase();
+        if (!DataSource.containsKey(slangInput)) {
           JOptionPane.showMessageDialog(null, "Slang does not exist !");
         } else {
           int x = JOptionPane.showConfirmDialog(null, "Do you want to delete ?", "Warning",
               JOptionPane.YES_NO_OPTION);
           if (x == JOptionPane.YES_OPTION) {
-            map.remove(slang);
-            String[][] arrData = getDataToTable();
-            TableModel model = new DefaultTableModel(arrData, columnNames);
-            jTable.setModel(model);
+            DataSource.remove(slangInput);
+            dataRender = getDataToTable();
+            reRender(dataRender);
             JOptionPane.showMessageDialog(null, "Delete successfully !");
           } else {
             JOptionPane.showMessageDialog(null, "Delete failed !");
@@ -327,9 +325,9 @@ public class SlangDictionary {
 
     String[][] dataRender = getDataToTable();
 
-    jTable = new JTable(dataRender, columnNames);
-    sp = new JScrollPane(jTable);
-    sp.setBounds(550, 180, 600, 770);
+    Table = new JTable(dataRender, columnNames);
+    ScrollPane = new JScrollPane(Table);
+    ScrollPane.setBounds(550, 180, 600, 770);
 
     JButton randomButton = new JButton("Random");
     randomButton.setBounds(20, 400, 100, 30);
@@ -339,16 +337,16 @@ public class SlangDictionary {
     randomDefinition.setBounds(150, 400, 400, 130);
     Random rand = new Random();
 
-    randomButton.addActionListener(new java.awt.event.ActionListener() {
+    randomButton.addActionListener(new ActionListener() {
 
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
+      public void actionPerformed(ActionEvent event) {
         Random rand = new Random();
-        int n = rand.nextInt(map.size());
+        int n = rand.nextInt(DataSource.size());
         int i = 0;
-        for (String s : map.keySet()) {
+        for (String s : DataSource.keySet()) {
           if (i == n) {
             randomSlang.setText("Slang: " + s);
-            List<String> tmp = map.get(s);
+            List<String> tmp = DataSource.get(s);
             String tmpStr = "";
             for (int j = 0; j < tmp.size() - 1; j++) {
               tmpStr += tmp.get(j) + ", ";
@@ -412,9 +410,9 @@ public class SlangDictionary {
     miniGame.add(stopButton);
     miniGame.add(nextButton);
 
-    stopButton.addActionListener(new java.awt.event.ActionListener() {
+    stopButton.addActionListener(new ActionListener() {
 
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
+      public void actionPerformed(ActionEvent event) {
         solutionA.setEnabled(false);
         solutionB.setEnabled(false);
         solutionC.setEnabled(false);
@@ -432,13 +430,13 @@ public class SlangDictionary {
     ActionListener actionListener = new ActionListener() {
 
       public void randomAnswer(Boolean isSlang) {
-        int n = rand.nextInt(map.size());
+        int n = rand.nextInt(DataSource.size());
         int i = 0;
         if (isSlang) {
-          for (String s : map.keySet()) {
+          for (String s : DataSource.keySet()) {
             if (i == n) {
               question.setText("Question: " + s);
-              List<String> tmp = map.get(s);
+              List<String> tmp = DataSource.get(s);
               String tmpStr = "";
               for (int j = 0; j < tmp.size() - 1; j++) {
                 tmpStr += tmp.get(j) + ", ";
@@ -459,9 +457,9 @@ public class SlangDictionary {
             i++;
           }
         } else if (!isSlang) {
-          for (String key : map.keySet()) {
+          for (String key : DataSource.keySet()) {
             if (i == n) {
-              question.setText("Question: " + map.get(key).get(0));
+              question.setText("Question: " + DataSource.get(key).get(0));
               int n1 = rand.nextInt(4);
               String tmpStr = key;
               if (n1 == 0) {
@@ -500,22 +498,23 @@ public class SlangDictionary {
 
         if (result == "A") {
           solutionA.setText(answer);
-          solutionA.addActionListener(new java.awt.event.ActionListener() {
+          solutionA.addActionListener(new ActionListener() {
 
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            public void actionPerformed(ActionEvent event) {
               JOptionPane.showMessageDialog(null, "Correct !");
               randomAnswer(isSlang);
             }
           });
         } else {
           if (isSlang) {
-            solutionA.setText(map.get((String) map.keySet().toArray()[rand.nextInt(map.size())]).get(0));
+            solutionA.setText(
+                DataSource.get((String) DataSource.keySet().toArray()[rand.nextInt(DataSource.size())]).get(0));
           } else {
-            solutionA.setText(map.keySet().toArray()[rand.nextInt(map.size())].toString());
+            solutionA.setText(DataSource.keySet().toArray()[rand.nextInt(DataSource.size())].toString());
           }
-          solutionA.addActionListener(new java.awt.event.ActionListener() {
+          solutionA.addActionListener(new ActionListener() {
 
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            public void actionPerformed(ActionEvent event) {
               JOptionPane.showMessageDialog(null, "Wrong !" + " The correct answer is " + answer.toUpperCase());
               randomAnswer(isSlang);
             }
@@ -524,22 +523,23 @@ public class SlangDictionary {
 
         if (result == "B") {
           solutionB.setText(answer);
-          solutionB.addActionListener(new java.awt.event.ActionListener() {
+          solutionB.addActionListener(new ActionListener() {
 
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            public void actionPerformed(ActionEvent event) {
               JOptionPane.showMessageDialog(null, "Correct !");
               randomAnswer(isSlang);
             }
           });
         } else {
           if (isSlang) {
-            solutionB.setText(map.get((String) map.keySet().toArray()[rand.nextInt(map.size())]).get(0));
+            solutionB.setText(
+                DataSource.get((String) DataSource.keySet().toArray()[rand.nextInt(DataSource.size())]).get(0));
           } else {
-            solutionB.setText(map.keySet().toArray()[rand.nextInt(map.size())].toString());
+            solutionB.setText(DataSource.keySet().toArray()[rand.nextInt(DataSource.size())].toString());
           }
-          solutionB.addActionListener(new java.awt.event.ActionListener() {
+          solutionB.addActionListener(new ActionListener() {
 
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            public void actionPerformed(ActionEvent event) {
               JOptionPane.showMessageDialog(null, "Wrong !" + " The correct answer is " + answer.toUpperCase());
               randomAnswer(isSlang);
             }
@@ -548,22 +548,23 @@ public class SlangDictionary {
 
         if (result == "C") {
           solutionC.setText(answer);
-          solutionC.addActionListener(new java.awt.event.ActionListener() {
+          solutionC.addActionListener(new ActionListener() {
 
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            public void actionPerformed(ActionEvent event) {
               JOptionPane.showMessageDialog(null, "Correct !");
               randomAnswer(isSlang);
             }
           });
         } else {
           if (isSlang) {
-            solutionC.setText(map.get((String) map.keySet().toArray()[rand.nextInt(map.size())]).get(0));
+            solutionC.setText(
+                DataSource.get((String) DataSource.keySet().toArray()[rand.nextInt(DataSource.size())]).get(0));
           } else {
-            solutionC.setText(map.keySet().toArray()[rand.nextInt(map.size())].toString());
+            solutionC.setText(DataSource.keySet().toArray()[rand.nextInt(DataSource.size())].toString());
           }
-          solutionC.addActionListener(new java.awt.event.ActionListener() {
+          solutionC.addActionListener(new ActionListener() {
 
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            public void actionPerformed(ActionEvent event) {
               JOptionPane.showMessageDialog(null, "Wrong !" + " The correct answer is " + answer.toUpperCase());
               randomAnswer(isSlang);
             }
@@ -572,22 +573,23 @@ public class SlangDictionary {
 
         if (result == "D") {
           solutionD.setText(answer);
-          solutionD.addActionListener(new java.awt.event.ActionListener() {
+          solutionD.addActionListener(new ActionListener() {
 
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            public void actionPerformed(ActionEvent event) {
               JOptionPane.showMessageDialog(null, "Correct !");
               randomAnswer(isSlang);
             }
           });
         } else {
           if (isSlang) {
-            solutionD.setText(map.get((String) map.keySet().toArray()[rand.nextInt(map.size())]).get(0));
+            solutionD.setText(
+                DataSource.get((String) DataSource.keySet().toArray()[rand.nextInt(DataSource.size())]).get(0));
           } else {
-            solutionD.setText(map.keySet().toArray()[rand.nextInt(map.size())].toString());
+            solutionD.setText(DataSource.keySet().toArray()[rand.nextInt(DataSource.size())].toString());
           }
-          solutionD.addActionListener(new java.awt.event.ActionListener() {
+          solutionD.addActionListener(new ActionListener() {
 
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
+            public void actionPerformed(ActionEvent event) {
               JOptionPane.showMessageDialog(null, "Wrong !" + " The correct answer is " + answer.toUpperCase());
               randomAnswer(isSlang);
             }
@@ -595,7 +597,7 @@ public class SlangDictionary {
         }
       }
 
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
+      public void actionPerformed(ActionEvent event) {
         stopButton.setEnabled(true);
         nextButton.setEnabled(true);
         solutionA.setEnabled(true);
@@ -611,6 +613,12 @@ public class SlangDictionary {
         }
       }
     };
+    
+    frame.addWindowListener(new WindowAdapter() {
+      public void windowClosing(WindowEvent e) {
+        WriteFile("database.txt");
+      }
+    });
 
     startButton.addActionListener(actionListener);
     nextButton.addActionListener(actionListener);
@@ -620,7 +628,7 @@ public class SlangDictionary {
     frame.add(randomSlang);
     frame.add(randomDefinition);
 
-    frame.add(sp);
+    frame.add(ScrollPane);
 
     frame.add(search);
     frame.add(manage);
