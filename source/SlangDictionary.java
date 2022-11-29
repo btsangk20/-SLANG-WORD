@@ -175,7 +175,13 @@ public class SlangDictionary {
             }
           }
 
-          if (!slangWord.isEmpty()) {
+          if (slangWord.isEmpty()) {
+            JOptionPane.showMessageDialog(null, "Not Found !");
+            dataRender = getDataToTable();
+            reRender(dataRender);
+          }
+
+          else {
             dataRender = new String[slangWord.size()][3];
             int i = 0;
             for (String slang : slangWord) {
@@ -613,7 +619,7 @@ public class SlangDictionary {
         }
       }
     };
-    
+
     frame.addWindowListener(new WindowAdapter() {
       public void windowClosing(WindowEvent e) {
         WriteFile("database.txt");
